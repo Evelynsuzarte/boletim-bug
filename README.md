@@ -82,3 +82,19 @@ primeiro acerto.
 - [ ] A média de todos os alunos está igual à esperada
 - [ ] A situação de todos os alunos está igual à esperada
 - [ ] Consigo explicar, com minhas palavras, cada bug que corrigi
+
+## Sobre o bug
+
+Foram encontrados e corrigidos 3 bugs no arquivo `src/main/groovy/Boletim.groovy`:
+
+1. **Primeira nota ignorada no cálculo da média (`calcularMedia`)**
+   - **Problema:** O laço `for` começava em `int i = 1`, pulando o primeiro elemento da lista (`notas[0]`), mas a média continuava dividindo a soma por `notas.size()` (`3`). Isso deixava todas as médias abaixo do valor real.
+   - **Correção:** O início do laço foi alterado para `int i = 0`, incluindo todas as notas na soma.
+
+2. **Nota de corte de recuperação incorreta (`MEDIA_RECUPERACAO`)**
+   - **Problema:** A constante `MEDIA_RECUPERACAO` estava definida como `6.5`, enquanto a regra da escola estabelece recuperação para `Média >= 5.0`. Com isso, alunos com média entre `5.0` e `6.49` (como Bruno, com `6.00`) eram reprovados indevidamente.
+   - **Correção:** O valor de `MEDIA_RECUPERACAO` foi alterado de `6.5` para `5.0`.
+
+3. **Condição de fronteira na aprovação (`situacao`)**
+   - **Problema:** A verificação de aprovação usava `media > mediaAprovacao` (estritamente maior que `7.0`), fazendo com que alunos com média exatamente igual a `7.0` (como Carla e Diego) caíssem em `Recuperação`.
+   - **Correção:** O operador foi alterado para `>=` (`media >= mediaAprovacao`), alinhando a condição à regra `Média >= 7.0`.
