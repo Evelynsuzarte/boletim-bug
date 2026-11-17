@@ -59,4 +59,40 @@ class BoletimSpec extends Specification {
         then: "Bruno é exibido com média 6.00 e situação Recuperação"
         saida.contains("Bruno: média 6.00 - Recuperação")
     }
+
+    @Unroll
+    def "Bug 3: deve classificar média #media (#cenario) como '#situacaoEsperada' com aprovação em >= 7.0"() {
+        expect: "a situação segue a regra de aprovação >= 7.0 e recuperação < 7.0 (e >= 5.0)"
+        boletim.situacao(media, 7.0, 5.0) == situacaoEsperada
+
+        where:
+        cenario                     | media | situacaoEsperada
+        "Carla e Diego (problema)"  | 7.00  | "Aprovado"
+        "Ana (problema)"            | 8.17  | "Aprovado"
+        "Acima de 7.0"              | 7.01  | "Aprovado"
+        "Nota máxima"               | 10.00 | "Aprovado"
+        "Logo abaixo de 7.0"        | 6.99  | "Recuperação"
+        "Entre 5.0 e 7.0"           | 6.50  | "Recuperação"
+    }
+
+    def "Bug 3: saída completa do boletim deve aprovar Carla e Diego (média 7.00) e bater com o esperado"() {
+        given: "um buffer para capturar a saída padrão do script"
+        def originalOut = System.out
+        def buffer = new ByteArrayOutputStream()
+        System.setOut(new PrintStream(buffer, true, "UTF-8"))
+
+        when: "executamos o script Boletim"
+        try {
+            boletim.run()
+        } finally {
+            System.setOut(originalOut)
+        }
+        def saida = buffer.toString("UTF-8")
+
+        then: "todos os alunos aparecem com as médias e situações esperadas"
+        saida.contains("Ana: média 8.17 - Aprovado")
+        saida.contains("Bruno: média 6.00 - Recuperação")
+        saida.contains("Carla: média 7.00 - Aprovado")
+        saida.contains("Diego: média 7.00 - Aprovado")
+    }
 }
